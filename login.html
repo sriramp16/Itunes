@@ -1,0 +1,135 @@
+<?php     
+session_start();
+
+if(isset($_SESSION["loggedInUser"])){  
+    header("Location: welcome.php");    
+    exit();
+} 
+?>
+
+<?php 
+    if(isset($_POST['loginBtn']))
+    {
+        $conn = mysqli_connect('localhost','root','','phptutorials');
+
+        if(!empty($_POST['email']) && !empty($_POST['password']))
+        {
+            $email = mysqli_real_escape_string($conn, $_POST['email']);
+            $password = mysqli_real_escape_string($conn, $_POST['password']);
+
+            $userCheck = mysqli_query($conn, "SELECT * FROM users WHERE email='$email' AND password='$password'");
+            if($userCheck)
+            {
+                if(mysqli_num_rows($userCheck) > 0)
+                {
+                    $_SESSION['loggedInUser'] = true;
+                    $_SESSION['show_message'] = 'Logged In Succcessfully';
+                    header('Location: welcome.php');
+                }
+                else
+                {
+                    $_SESSION['show_message'] = 'Invalid Email and Password';
+                }
+            }
+            else
+            {
+                $_SESSION['show_message'] = 'Something Went Wrong in Query';
+            }
+        }
+        else
+        {
+            $_SESSION['show_message'] = 'All fields are required';
+        }
+    }
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+        html,body{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .text-center{
+            text-align: center;
+        }
+        .login-card{
+            display: block;
+            margin: 30px auto 0px auto; 
+            width: 30%;
+            border: 1px solid #ccc;
+            box-shadow: 3px 3px 9px 3px #ddd;
+            padding: 20px;
+        }
+        .input-box{
+            width: 95%;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .input-box input{
+            width: 100%;
+            display: block;
+            border: 1px solid #777;
+            border-radius: 4px;
+            padding: 8px 8px;
+        }
+        .submit-btn{
+            width: 100%;
+            padding: 10px;
+            background-color: blue;
+            color: #fff;
+            outline: 0;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .alert{
+            background-color: skyblue;
+            padding: 14px 20px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    
+    <div>
+        <div class="login-card">
+
+            <?php
+            if(isset($_SESSION['show_message'])){
+                echo '<h4 class="alert">'.$_SESSION['show_message'].'</h4>';
+                unset($_SESSION['show_message']);
+            }
+            ?>
+
+            <h2 class="text-center">Login Form</h2>
+            <hr>
+            <br/>
+
+            <form action="" method="POST">
+                <div class="input-box">
+                    <label>Email Address</label>
+                    <input type="email" name="email" />
+                </div>
+                <div class="input-box">
+                    <label>Password</label>
+                    <input type="password" name="password" />
+                </div>
+                <div>
+                    <button name="loginBtn" class="submit-btn">Login Now</button>
+                </div>
+                <div class="text-center">
+                    <br/>
+                    <a href="register.php">Dont have account ? register now</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>
